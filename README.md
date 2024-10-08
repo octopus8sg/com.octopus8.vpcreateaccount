@@ -1,4 +1,4 @@
-# Volunteer Portal Create Account (vp_create_account)
+# Volunteer Portal Create Account Extension (vpcreateaccount)
 
 This extension creates a Volunteer Portal User role WordPress account after registration is accepted & sends an email containing the login credentials to the volunteer.
 
