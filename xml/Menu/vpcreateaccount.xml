@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<menu>
+    <item>
+        <path>civicrm/vpcreateaccount/configuration</path>
+        <page_callback>CRM_Vpcreateaccount_Form_Configuration</page_callback>
+        <title>VP Create Account Configuration</title>
+        <access_arguments>access CiviCRM</access_arguments>
+    </item>
+</menu>
