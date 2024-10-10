@@ -110,7 +110,18 @@ class CRM_Vpcreateaccount_Utils
         // Generate Account Credentials
         $email = $contact['email'];
         $username = sanitize_user($contact['first_name'] . ' ' . $contact['last_name']);
-        $password = wp_generate_password();
+        $birthDate = $contact['birth_date'];
+        $phone = $contact['phone'];
+
+        // Extract birthdate in YYYYMMDD format
+        $formattedBirthDate = date('Ymd', strtotime($birthDate));
+
+        // Extract last 4 digits of the phone number
+        $lastFourDigits = substr($phone, -4);
+
+        // Concatenate the birthdate and last 4 digits of the phone number
+        $password = $formattedBirthDate . $lastFourDigits;
+
         Civi::log()->debug("Email: {$email}, Username: {$username}, Password: {$password}");
 
         // Check if contact is already linked to a WordPress user
@@ -143,11 +154,13 @@ class CRM_Vpcreateaccount_Utils
             $userId = wp_insert_user($user_data);
 
             if (is_wp_error($userId)) {
-                Civi::log()->error("Error creating user: " . $userId->get_error_message());
+                Civi::log()->debug("Error creating user: " . $userId->get_error_message());
+                CRM_Core_Session::setStatus("Failed to Create User.");
                 return; // Exit if there is an error creating the user
             }
 
             Civi::log()->debug("User Account Created Successfully with Role Assigned: userId {$userId}");
+
             // Check if a new CiviCRM contact has been automatically created for this user
             $newUfMatch = civicrm_api3('UFMatch', 'get', [
                 'uf_id' => $userId,
@@ -176,32 +189,47 @@ class CRM_Vpcreateaccount_Utils
                 }
             }
 
-            $organisationName = self::getSettings('email_org_name');
-            $baseUrl = CRM_Core_Config::singleton()->userFrameworkBaseURL;
+            // Fetch the email template for account credentials
+            $messageTemplate = civicrm_api4('MessageTemplate', 'get', [
+                'where' => [
+                    ['msg_title', '=', 'VP Account Credentials'],
+                ],
+                'checkPermissions' => FALSE,
+            ]);
 
-            // Prepare the email details
-            $subject = 'Your Volunteer Portal Account Credentials';
-            $message = "Dear " . $contact['last_name'] . ",\n\n";
-            $message .= "You have been approved to volunteer for $organisationName. Your volunteer portal account has been created. Below are your login credentials:\n\n";
-            $message .= "Username: $username\n";
-            $message .= "Email: $email\n";
-            $message .= "Password: $password\n\n";
-            $message .= "Please change your password after your first login.\n";
-            $message .= "You can log in at: $baseUrl" . "portal" . "\n\n";
-            $message .= "Best regards,\n$organisationName";
+            // Check if template was found
+            if (empty($messageTemplate) || !isset($messageTemplate[0]['id'])) {
+                Civi::log()->error("Message Template 'VP Account Credentials' Not Found, Email Not Sent");
+                return; // Exit if no template is found
+            }
 
-            // Send email with credentials
-            $email_sent = wp_mail($email, $subject, $message);
+            $templateId = $messageTemplate[0]['id'];
 
-            if ($email_sent) {
+            // Attempt to send the email
+            try {
+                $result = civicrm_api3('Email', 'send', [
+                    'contact_id' => $contact['id'],
+                    'template_id' => $templateId,
+                    'from_email_option' => 2, // Set email address in From Email Addresses Options page
+                ]);
+
                 Civi::log()->debug("User Account Created & Email Sent Successfully");
                 CRM_Core_Session::setStatus("User Account Created & Email Sent Successfully");
-            } else {
-                Civi::log()->error("Failed to Send Email");
+            } catch (CiviCRM_API3_Exception $e) {
+                $error = [
+                    'error' => true,
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                ];
+
+                Civi::log()->debug("Failed to send email: " . json_encode($error));
+                CRM_Core_Session::setStatus("User Account Created, Failed to Send Email.");
+                return;
             }
         } else {
             Civi::log()->debug("WordPress user already exists");
             CRM_Core_Session::setStatus("WordPress username & email already exists");
         }
     }
+
 }
