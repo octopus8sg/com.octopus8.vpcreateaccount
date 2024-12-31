@@ -19,12 +19,6 @@ class CRM_Vpcreateaccount_Form_Configuration extends CRM_Core_Form
             $activityOptionsName[$type['name']] = $type['label'];
         }
 
-        $this->add(
-            'text',
-            'email_org_name',
-            E::ts('For Email: Your Organisation Name')
-        );
-
         // Add the multi-select field for activity types
         $this->add(
             'select',
@@ -88,12 +82,6 @@ class CRM_Vpcreateaccount_Form_Configuration extends CRM_Core_Form
             ]
         );
 
-        // Pass the saved acceptance status value to JavaScript
-        // $savedStatusValue = U::getSettings('acceptance_status_value');
-        // CRM_Core_Resources::singleton()->addScript("
-        // var savedAcceptanceStatusValue = '" . ($savedStatusValue ? $savedStatusValue : '') . "';
-        // ");
-
         $this->addButtons([
             [
                 'type' => 'submit',
@@ -118,24 +106,20 @@ class CRM_Vpcreateaccount_Form_Configuration extends CRM_Core_Form
     public function postProcess()
     {
         $values = $this->exportValues();
-        $emailOrgName = $values['email_org_name'];
         $selectedVRActivityType = $values['volunteer_registration_activity_type'];
         $selectedAcceptanceStatusField = $values['acceptance_status_field'];
         $selectedAcceptanceStatusValue = $values['acceptance_status_value'];
 
-        U::setSettings('email_org_name', $emailOrgName);
         U::setSettings('volunteer_registration_activity_type', $selectedVRActivityType);
         U::setSettings('acceptance_status_field', $selectedAcceptanceStatusField);
         U::setSettings('acceptance_status_value', $selectedAcceptanceStatusValue);
 
-        $setEmailOrgName = U::getSettings('email_org_name');
         $setVRActivityType = U::getSettings('volunteer_registration_activity_type');
         $setAcceptanceStatusField = U::getSettings('acceptance_status_field');
         $setAcceptanceStatusValue = U::getSettings('acceptance_status_value');
 
 
-        $status_str = ts('Email Organisation Name: ') . $setEmailOrgName
-            . ", " . ts('Selected Volunteer Registration Activity Type: ') . $setVRActivityType
+        $status_str = ts('Selected Volunteer Registration Activity Type: ') . $setVRActivityType
             . ", " . ts('Selected Acceptance Status Field: ') . $setAcceptanceStatusField
             . ", " . ts('Selected Acceptance Status Value: ') . $setAcceptanceStatusValue
         ;

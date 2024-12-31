@@ -22,21 +22,16 @@ This extension creates a Volunteer Portal User role WordPress account after regi
 
 1. Under Volunteer Portal >> Create Account Configuration
 
-2. Enter organisation name to be used in the email
+2. Select the Volunteer Registration Activity Type (E.g. Volunteer Registration Form)
 
-3. Select the Volunteer Registration Activity Type (E.g. Volunteer Registration Form)
+3. Select Acceptance Status Custom Field (E.g. Acceptance Status)
 
-4. Select Acceptance Status Custom Field (E.g. Acceptance Status)
-
-5. Select the Acceptance Status value when a volunteer has been accepted to volunteer with the organisation (E.g. Accepted)
+4. Select the Acceptance Status value when a volunteer has been accepted to volunteer with the organisation (E.g. Accepted)
 
 ## Note
 
 In order to send emails, there must be an SMTP server set up, where most sites uses WP Mail SMTP plugin. As such, any sites without SMTP or localhost would likely fail when sending emails.
 
-To change the email content such as organisation name, you would need to edit the code in CMR/VPCreateAccount/Utils.php :: createVPUser.
-You can also use this extension for other activity types, custom fields through the configuration page & editing Utils.php :: getAcceptanceStatus for custom field values.
-Search for 'edit' in the files to see which parts should be edited if you want the extension for other entities.
-Of course if editing this extension for your other use case is not the best method, feel free to use this as a boilerplate for your own extension.
+This extension sends emails through API3's send email call and uses a Message Template (VP Account Credentials). Refer to [Message Template](https://demo.socialservicesconnect.com/wp-admin/admin.php?page=CiviCRM&q=civicrm%2Fadmin%2FmessageTemplates%2Fadd&action=update&id=87&reset=1) if you would like to create new or edit the existing template.
 
 This is an [extension for CiviCRM](https://docs.civicrm.org/sysadmin/en/latest/customize/extensions/), licensed under [AGPL-3.0](LICENSE.txt).
