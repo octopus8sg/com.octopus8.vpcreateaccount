@@ -37,15 +37,21 @@ function vpcreateaccount_civicrm_enable(): void
 
 function vpcreateaccount_civicrm_navigationMenu(&$menu)
 {
-  _vpcreateaccount_civix_insert_navigation_menu($menu, 'Volunteer Portal', [
+  _vpcreateaccount_civix_insert_navigation_menu($menu, '', [
+    'label' => E::ts('Volunteer Portal'),
+    'icon' => 'crm-i fa-heart',
+    'name' => 'vp',
+    'permission' => 'administer CiviCRM',
+  ]);
+
+  _vpcreateaccount_civix_insert_navigation_menu($menu, 'vp', [
     'label' => E::ts('Create Account Configuration'),
     'name' => 'vpca_configuration',
     'url' => 'civicrm/vpcreateaccount/configuration',
     'permission' => 'administer CiviCRM',
-    'operator' => 'OR',
-    //'separator' => 1,
-    'is_active' => 1
   ]);
+
+  _vpcreateaccount_civix_navigationMenu($menu);
 }
 
 function vpcreateaccount_civicrm_postCommit($op, $objectName, $objectId, &$objectRef)
